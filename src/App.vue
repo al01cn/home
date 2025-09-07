@@ -26,7 +26,7 @@
         <Icon size="18">
           <component :is="User" />
         </Icon>
-        <span class="user-text">{{ store.isLoggedIn ? '注销' : '登录' }}</span>
+        <span class="user-text">{{ store.isLoggedIn ? (store.userInfo?.username || '注销') : '登录' }}</span>
       </div>
       <!-- 页脚 -->
       <Transition name="fade" mode="out-in">
