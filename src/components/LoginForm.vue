@@ -116,14 +116,14 @@ const thirdPartyLogin = (platform) => {
   switch (platform) {
     case 'github':
       // 使用本地开发环境的回调地址
-      const redirectUri = encodeURIComponent('https://www.al01.cn/github_callback');
-      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liC7vztIl7ZN5SzY&redirect_uri=${redirectUri}&scope=user&state=${Date.now()}`;
+      const githubRedirectUri = encodeURIComponent('https://www.al01.cn/github_callback');
+      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liC7vztIl7ZN5SzY&redirect_uri=${githubRedirectUri}&scope=user&state=${Date.now()}`;
       delayRedirect(githubAuthUrl);
       break;
     case 'qq':
       // QQ登录暂不实现
-      const redirectUri = encodeURIComponent('https://www.al01.cn/qq_callback');
-      const qqAuthUrl = `https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=102805914&redirect_uri=${redirectUri}&scope=get_user_info&state=${Date.now()}`;
+      const qqRedirectUri = encodeURIComponent('https://www.al01.cn/qq_callback');
+      const qqAuthUrl = `https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=102805914&redirect_uri=${qqRedirectUri}&scope=get_user_info&state=${Date.now()}`;
       delayRedirect(qqAuthUrl);
       break;
     case 'minecraft':
