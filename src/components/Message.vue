@@ -98,6 +98,9 @@ watch(
     .logo-img {
       border-radius: 50%;
       width: 120px;
+      background-color: #fff;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .name {
       width: 100%;

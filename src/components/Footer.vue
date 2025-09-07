@@ -1,47 +1,35 @@
 <template>
   <footer id="footer" :class="store.footerBlur ? 'blur' : null">
-    <Transition name="fade" mode="out-in">
-      <div v-if="!store.playerState || !store.playerLrcShow" class="power">
-        <span>
-          <span :class="startYear < fullYear ? 'c-hidden' : 'hidden'">Copyright&nbsp;</span>
-          &copy;
-          <span v-if="startYear < fullYear" class="site-start">
-            {{ startYear }}
-            -
-          </span>
-          {{ fullYear }}
-          <a :href="siteUrl">{{ siteAuthor }}</a>
+    <div class="power">
+      <span>
+        <span :class="startYear < fullYear ? 'c-hidden' : 'hidden'">Copyright</span>
+        &copy;
+        <span v-if="startYear < fullYear" class="site-start"> 
+          {{ startYear }}
+          -
         </span>
-        <!-- 站点ICP备案 -->
-        <span>
-          |
-          <a v-if="siteIcp" href="https://beian.miit.gov.cn" target="_blank">
-            {{ siteIcp }}
-          </a>
-        </span>
-        <!-- 站点公安备案 -->
-        <span>
-          |
-          <a v-if="siteGongan" :href="'https://beian.mps.gov.cn/#/query/webSearch?code='+siteGongan" target="_blank">
-            {{ siteGongan }}
-          </a>
-        </span>
-      </div>
-      <div v-else class="lrc">
-        <Transition name="fade" mode="out-in">
-          <div class="lrc-all" :key="store.getPlayerLrc">
-            <music-one theme="filled" size="18" fill="#efefef" />
-            <span class="lrc-text text-hidden" v-html="store.getPlayerLrc" />
-            <music-one theme="filled" size="18" fill="#efefef" />
-          </div>
-        </Transition>
-      </div>
-    </Transition>
+        {{ fullYear }}
+        <a :href="siteUrl">{{ siteAuthor }}</a>
+      </span>
+      <!-- 站点ICP备案 -->
+      <span v-if="siteIcp">
+        <span class="divider">&nbsp;|&nbsp;</span>
+        <a href="https://beian.miit.gov.cn" target="_blank">
+          {{ siteIcp }}
+        </a>
+      </span>
+      <!-- 站点公安备案 -->
+      <span v-if="siteGongan">
+        <span class="divider">&nbsp;|&nbsp;</span>
+        <a :href="'https://beian.mps.gov.cn/#/query/webSearch?code='+siteGongan" target="_blank">
+          {{ siteGongan }}
+        </a>
+      </span>
+    </div>
   </footer>
 </template>
 
 <script setup>
-import { MusicOne } from "@icon-park/vue-next";
 import { mainStore } from "@/store";
 import config from "@/../package.json";
 
@@ -82,6 +70,7 @@ const siteUrl = computed(() => {
   // 文字不换行
   word-break: keep-all;
   white-space: nowrap;
+  overflow-x: auto; // 添加横向滚动以防止内容溢出
 
   .power {
     animation: fade 0.3s;
@@ -126,9 +115,33 @@ const siteUrl = computed(() => {
 
   @media (max-width: 720px) {
     font-size: 0.9rem;
+    position: fixed; // 在移动端使用fixed定位
+    bottom: 10px; // 提高底部位置
+    left: 0;
+    width: 100%;
+    height: auto; // 自适应高度
+    line-height: 1.5; // 减小行高
 
     &.blur {
       font-size: 0.9rem;
+    }
+
+    .power {
+      padding: 10px; // 添加内边距
+      min-width: 100%;
+      display: flex;
+      flex-direction: column; // 垂直排版
+      align-items: center;
+      justify-content: center;
+      
+      span {
+        display: block;
+        margin: 2px 0;
+        
+        .divider {
+          display: none; // 在垂直排版中隐藏分隔符
+        }
+      }
     }
   }
 
@@ -136,11 +149,26 @@ const siteUrl = computed(() => {
     .c-hidden {
       display: none;
     }
+    
+    .power {
+      font-size: 0.85rem; // 稍微减小字体大小
+    }
   }
 
   @media (max-width: 480px) {
     .hidden {
       display: none;
+    }
+    
+    bottom: 5px; // 在更小的屏幕上进一步提高位置
+    
+    .power {
+      font-size: 0.8rem; // 进一步减小字体大小
+      padding: 5px; // 减小内边距
+      
+      span {
+        margin: 1px 0; // 减小垂直间距
+      }
     }
   }
 }

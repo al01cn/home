@@ -17,29 +17,26 @@
         </section>
       </div>
       <!-- 移动端菜单按钮 -->
-      <Icon
-        class="menu"
-        size="24"
-        v-show="!store.backgroundShow"
-        @click="store.mobileOpenState = !store.mobileOpenState"
-      >
+      <Icon class="menu" size="24" v-show="!store.backgroundShow"
+        @click="store.mobileOpenState = !store.mobileOpenState">
         <component :is="store.mobileOpenState ? CloseSmall : HamburgerButton" />
       </Icon>
       <!-- 用户按钮 -->
-      <Icon
-        class="user-btn"
-        size="24"
-        v-show="!store.backgroundShow"
-        @click="handleUserClick"
-      >
-        <User theme="outline" />
-      </Icon>
+      <div class="user-btn" v-show="!store.backgroundShow" @click="handleUserClick">
+        <Icon size="18">
+          <component :is="User" />
+        </Icon>
+        <span class="user-text">{{ store.isLoggedIn ? '注销' : '登录' }}</span>
+      </div>
       <!-- 页脚 -->
       <Transition name="fade" mode="out-in">
         <Footer class="f-ter" v-show="!store.backgroundShow && !store.setOpenState" />
       </Transition>
     </main>
   </Transition>
+
+  <!-- 登录表单 -->
+  <LoginForm v-model:visible="loginFormVisible" @login="handleLogin" />
 </template>
 
 <script setup>
@@ -47,7 +44,9 @@ import { helloInit, checkDays } from "@/utils/getTime.js";
 import { HamburgerButton, CloseSmall, User } from "@icon-park/vue-next";
 import { mainStore } from "@/store";
 import { Icon } from "@vicons/utils";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { githubCallback, checkLoginStatus } from "@/utils/login";
+import showConfirm from "@/utils/confirm";
 import Loading from "@/components/Loading.vue";
 import MainLeft from "@/views/Main/Left.vue";
 import MainRight from "@/views/Main/Right.vue";
@@ -55,8 +54,10 @@ import Background from "@/components/Background.vue";
 import Footer from "@/components/Footer.vue";
 import Box from "@/views/Box/index.vue";
 import MoreSet from "@/views/MoreSet/index.vue";
+import LoginForm from "@/components/LoginForm.vue";
 import cursorInit from "@/utils/cursor.js";
 import config from "@/../package.json";
+
 
 const store = mainStore();
 
@@ -66,8 +67,14 @@ const getWidth = () => {
 };
 
 // 加载完成事件
-const loadComplete = () => {
-  nextTick(() => {
+const loadComplete = async () => {
+  nextTick(async() => {
+    // 检查GitHub回调并处理登录
+    await githubCallback();
+    
+    // 检查用户登录状态
+    checkLoginStatus();
+
     // 欢迎提示
     helloInit();
     // 默哀模式
@@ -75,10 +82,45 @@ const loadComplete = () => {
   });
 };
 
+// 登录表单显示状态
+const loginFormVisible = ref(false);
+
 // 用户按钮点击事件
 const handleUserClick = () => {
+  if (store.isLoggedIn) {
+    // 提供登出选项
+    showConfirm({
+      title: '提示',
+      message: '是否要退出登录？',
+      confirmText: '确定',
+      cancelText: '取消',
+      type: 'warning',
+    }
+    )
+      .then(() => {
+        store.logout();
+        ElMessage({
+          type: 'success',
+          message: '已成功退出登录',
+          grouping: true,
+        });
+      })
+      .catch(() => {
+        // 取消登出
+      });
+  } else {
+    // 未登录则显示登录表单
+    loginFormVisible.value = true;
+  }
+};
+
+// 处理登录事件
+const handleLogin = (data) => {
+  console.log('用户登录成功:', data);
+  // 显示登录成功信息
   ElMessage({
-    message: "用户功能即将上线",
+    message: `欢迎回来，${data.userData.username}`,
+    type: 'success',
     grouping: true,
   });
 };
@@ -149,11 +191,13 @@ onBeforeUnmount(() => {
   transition: transform 0.3s;
   animation: fade-blur-main-in 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   animation-delay: 0.5s;
+
   .container {
     width: 100%;
     height: 100vh;
     margin: 0 auto;
     padding: 0 0.5vw;
+
     .all {
       width: 100%;
       height: 100%;
@@ -163,6 +207,7 @@ onBeforeUnmount(() => {
       justify-content: center;
       align-items: center;
     }
+
     .more {
       position: fixed;
       top: 0;
@@ -174,10 +219,12 @@ onBeforeUnmount(() => {
       z-index: 2;
       animation: fade 0.5s;
     }
+
     @media (max-width: 1200px) {
       padding: 0 2vw;
     }
   }
+
   .menu {
     position: absolute;
     display: flex;
@@ -192,93 +239,132 @@ onBeforeUnmount(() => {
     border-radius: 6px;
     transition: transform 0.3s;
     animation: fade 0.5s;
+
     &:active {
       transform: scale(0.95);
     }
+
     .i-icon {
-      transform: translateY(2px);
+      transform: translateY(0);
     }
+
     @media (min-width: 721px) {
       display: none;
     }
   }
-  
+
   .user-btn {
     position: fixed;
     top: 20px;
     right: 20px;
     z-index: 2;
-    width: 50px;
-    height: 50px;
-    padding: 13px;
+    height: 40px;
+    padding: 0 16px;
     background: rgb(0 0 0 / 20%);
     backdrop-filter: blur(10px);
-    border-radius: 6px;
+    border-radius: 20px;
     transition: transform 0.3s;
     animation: fade 0.5s;
-    &:active {
-      transform: scale(0.95);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      transform: scale(1.02);
+      background: rgb(0 0 0 / 40%);
+      transition: 0.3s;
     }
+
+    &:active {
+      transform: scale(1);
+    }
+
     .i-icon {
-      transform: translateY(2px);
+      transform: translateY(0);
+    }
+
+    .user-text {
+      color: #fff;
+      font-size: 14px;
     }
   }
+
   @media (max-height: 720px) {
     overflow-y: auto;
     overflow-x: hidden;
+
     .container {
       height: 721px;
+
       .more {
         height: 721px;
         width: calc(100% + 6px);
       }
+
       @media (min-width: 391px) {
         // w 1201px ~ max
         padding-left: 0.7vw;
         padding-right: 0.25vw;
-        @media (max-width: 1200px) { // w 1101px ~ 1280px
+
+        @media (max-width: 1200px) {
+          // w 1101px ~ 1280px
           padding-left: 2.3vw;
           padding-right: 1.75vw;
         }
-        @media (max-width: 1100px) { // w 993px ~ 1100px
+
+        @media (max-width: 1100px) {
+          // w 993px ~ 1100px
           padding-left: 2vw;
           padding-right: calc(2vw - 6px);
         }
-        @media (max-width: 992px) { // w 901px ~ 992px
+
+        @media (max-width: 992px) {
+          // w 901px ~ 992px
           padding-left: 2.3vw;
           padding-right: 1.7vw;
         }
-        @media (max-width: 900px) { // w 391px ~ 900px
+
+        @media (max-width: 900px) {
+          // w 391px ~ 900px
           padding-left: 2vw;
           padding-right: calc(2vw - 6px);
         }
       }
     }
+
     .menu {
       top: 605.64px; // 721px * 0.84
       left: 170.5px; // 391 * 0.5 - 25px
+
       @media (min-width: 391px) {
         left: calc(50% - 25px);
       }
     }
+
     .f-ter {
       top: 675px; // 721px - 46px
+
       @media (min-width: 391px) {
         padding-left: 6px;
       }
     }
   }
+
   @media (max-width: 390px) {
     overflow-x: auto;
+
     .container {
       width: 391px;
     }
+
     .menu {
       left: 167.5px; // 391px * 0.5 - 28px
     }
+
     .f-ter {
       width: 391px;
     }
+
     @media (min-height: 721px) {
       overflow-y: hidden;
     }
