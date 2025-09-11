@@ -1,10 +1,16 @@
 import { ElMessage } from "element-plus";
 import { mainStore } from "@/store";
+
+export async function login(){
+    await githubCallback()
+    await qqCallback()
+}
+
 /**
  * GitHub登录回调处理函数
  * 处理GitHub OAuth回调，获取用户信息并保存到store中
  */
-export async function githubCallback() {
+async function githubCallback() {
     const store = mainStore();
 
     if (window.location.pathname === '/github_callback') {
@@ -26,18 +32,63 @@ export async function githubCallback() {
             }
 
             const data = await res.json();
-            
+
             // 保存用户信息和token到store，实现数据持久化
             const token = store.login(data, data.sessionId);
-            
+
             ElMessage.success('登录成功：' + data.username);
-            
+
             // 登录成功后重定向到首页
             setTimeout(() => {
                 window.location.href = '/';
             }, 1500);
         } catch (error) {
             console.error('GitHub登录处理错误:', error);
+            ElMessage.error('登录处理出错，请稍后重试');
+            // 出错后重定向到首页
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+    }
+}
+
+/**
+ * QQ登录回调处理函数
+ * 处理QQ OAuth回调，获取用户信息并保存到store中
+ */
+async function qqCallback() {
+    if (window.location.pathname === '/qq_callback') {
+        const code = new URLSearchParams(window.location.search).get('code');
+        // 发送code到后端
+        try {
+            const res = await fetch('https://auth.al01.cn/qq_callback?code=' + code, {
+                method: 'GET',
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                ElMessage.error('登录失败：' + (error.error));
+                // 登录失败后重定向到首页
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+                return;
+            }
+
+            const data = await res.json();
+
+            // 保存用户信息和token到store，实现数据持久化
+            const token = store.login(data, data.sessionId);
+
+            ElMessage.success('登录成功：' + data.username);
+
+            // 登录成功后重定向到首页
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+        } catch (error) {
+            console.error('QQ登录处理错误:', error);
             ElMessage.error('登录处理出错，请稍后重试');
             // 出错后重定向到首页
             setTimeout(() => {

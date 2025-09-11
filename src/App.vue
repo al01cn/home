@@ -45,7 +45,7 @@ import { HamburgerButton, CloseSmall, User } from "@icon-park/vue-next";
 import { mainStore } from "@/store";
 import { Icon } from "@vicons/utils";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { githubCallback, checkLoginStatus } from "@/utils/login";
+import { login, checkLoginStatus } from "@/utils/login";
 import showConfirm from "@/utils/confirm";
 import Loading from "@/components/Loading.vue";
 import MainLeft from "@/views/Main/Left.vue";
@@ -70,7 +70,7 @@ const getWidth = () => {
 const loadComplete = async () => {
   nextTick(async() => {
     // 检查GitHub回调并处理登录
-    await githubCallback();
+    await login();
     
     // 检查用户登录状态
     checkLoginStatus();
