@@ -49,6 +49,7 @@ import { CloseOne, Github, TencentQq as QQ } from "@icon-park/vue-next";
 import { ElMessage } from "element-plus";
 import { mainStore } from "@/store";
 import { Icon as I } from "@iconify/vue";
+import IsMobile from "@/utils/IsMobile";
 
 const props = defineProps({
   visible: {
@@ -123,7 +124,7 @@ const thirdPartyLogin = (platform) => {
     case 'qq':
       // QQ登录暂不实现
       const qqRedirectUri = encodeURIComponent('https://www.al01.cn/qq_callback');
-      const qqAuthUrl = `https://graph.qq.com/oauth2.0/show?which=Login&response_type=code&client_id=102810408&redirect_uri=${qqRedirectUri}&scope=all`;
+      const qqAuthUrl = `https://graph.qq.com/oauth2.0/show?which=Login&display=${IsMobile ? 'mobile' : 'pc'}&response_type=code&client_id=102810408&redirect_uri=${qqRedirectUri}&scope=all`;
       delayRedirect(qqAuthUrl);
       break;
     case 'minecraft':
