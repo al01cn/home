@@ -124,7 +124,7 @@ const thirdPartyLogin = (platform) => {
     case 'qq':
       // QQ登录暂不实现
       const qqRedirectUri = encodeURIComponent('https://www.al01.cn/qq_callback');
-      const qqAuthUrl = `https://graph.qq.com/oauth2.0/show?which=Login&display=${IsMobile ? 'mobile' : 'pc'}&response_type=code&client_id=102810408&redirect_uri=${qqRedirectUri}&scope=all`;
+      const qqAuthUrl = `https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=102810408&redirect_uri=${qqRedirectUri}&display=${IsMobile ? 'mobile' : 'pc'}`;
       delayRedirect(qqAuthUrl);
       break;
     case 'minecraft':
