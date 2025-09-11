@@ -1,7 +1,13 @@
 import { ElMessage } from "element-plus";
 import { mainStore } from "@/store";
+import { Loading } from "@element-plus/icons-vue";
 
-export async function login(){
+
+const message = ElMessage
+
+const messageKey = "Login"
+
+export async function login() {
     await githubCallback()
     await qqCallback()
 }
@@ -14,6 +20,11 @@ async function githubCallback() {
     const store = mainStore();
 
     if (window.location.pathname === '/github_callback') {
+        message.info({
+            message: '登录中...',
+            icon: Loading,
+            key: messageKey
+        });
         const code = new URLSearchParams(window.location.search).get('code');
         // 发送code到后端
         try {
@@ -23,7 +34,10 @@ async function githubCallback() {
 
             if (!res.ok) {
                 const error = await res.json();
-                ElMessage.error('登录失败：' + (error.error));
+                message.error({
+                    message: '登录失败：' + (error.error),
+                    key: messageKey
+                });
                 // 登录失败后重定向到首页
                 setTimeout(() => {
                     window.location.href = '/';
@@ -36,7 +50,10 @@ async function githubCallback() {
             // 保存用户信息和token到store，实现数据持久化
             const token = store.login(data, data.sessionId);
 
-            ElMessage.success('登录成功：' + data.username);
+            message.success({
+                message: '登录成功：' + data.username,
+                key: messageKey
+            });
 
             // 登录成功后重定向到首页
             setTimeout(() => {
@@ -44,7 +61,10 @@ async function githubCallback() {
             }, 1500);
         } catch (error) {
             console.error('GitHub登录处理错误:', error);
-            ElMessage.error('登录处理出错，请稍后重试');
+            message.error({
+                message: '登录处理出错，请稍后重试',
+                key: messageKey
+            });
             // 出错后重定向到首页
             setTimeout(() => {
                 window.location.href = '/';
@@ -58,7 +78,14 @@ async function githubCallback() {
  * 处理QQ OAuth回调，获取用户信息并保存到store中
  */
 async function qqCallback() {
+    const store = mainStore();
+
     if (window.location.pathname === '/qq_callback') {
+        message.info({
+            message: '登录中...',
+            icon: Loading,
+            key: messageKey
+        });
         const code = new URLSearchParams(window.location.search).get('code');
         // 发送code到后端
         try {
@@ -68,7 +95,10 @@ async function qqCallback() {
 
             if (!res.ok) {
                 const error = await res.json();
-                ElMessage.error('登录失败：' + (error.error));
+                message.error({
+                    message: '登录失败：' + (error.error),
+                    key: messageKey
+                });
                 // 登录失败后重定向到首页
                 setTimeout(() => {
                     window.location.href = '/';
@@ -81,7 +111,10 @@ async function qqCallback() {
             // 保存用户信息和token到store，实现数据持久化
             const token = store.login(data, data.sessionId);
 
-            ElMessage.success('登录成功：' + data.username);
+            message.success({
+                message: '登录成功：' + data.username,
+                key: messageKey
+            });
 
             // 登录成功后重定向到首页
             setTimeout(() => {
@@ -89,7 +122,10 @@ async function qqCallback() {
             }, 1500);
         } catch (error) {
             console.error('QQ登录处理错误:', error);
-            ElMessage.error('登录处理出错，请稍后重试');
+            message.error({
+                message: '登录处理出错，请稍后重试',
+                key: messageKey
+            });
             // 出错后重定向到首页
             setTimeout(() => {
                 window.location.href = '/';
